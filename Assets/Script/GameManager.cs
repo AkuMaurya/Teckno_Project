@@ -5,7 +5,6 @@ using UnityEngine;
 using UnityEngine.AI;
 using UnityEngine.Playables;
 using UnityEngine.SceneManagement;
-using static UnityEditor.PlayerSettings;
 
 public class GameManager : MonoBehaviour
 {
@@ -20,8 +19,8 @@ public class GameManager : MonoBehaviour
     public WaveManager waveManager;
     public Texture2D cursorTexture;
     public UIController uiController;
-    public 
-    Vector2 cursorPosition;
+    public bool isGamePaused = false;
+    public Vector2 cursorHotspot;
     private void Awake()
     {
         DontDestroyOnLoad(this);
@@ -36,15 +35,40 @@ public class GameManager : MonoBehaviour
     {
         Time.timeScale = 1;
         SpawnPlayer();
-        ChangeCursor();
+        UpdateCursor();
         SpawnEnemies();
     }
-
-    void ChangeCursor()
+    void Update()
     {
-        //cursorPosition = new Vector2(cursorTexture.width/2, cursorTexture.height/2);
-        //Cursor.SetCursor(cursorTexture, cursorHotspot, CursorMode.Auto);
+        // Example: toggle pause with Escape
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            isGamePaused = !isGamePaused;
+            UpdateCursor();
+        }
     }
+
+    public void UpdateCursor()
+    {
+        if (isGamePaused)
+        {
+            Cursor.SetCursor(null, Vector2.zero, CursorMode.Auto);
+            Cursor.visible = true;
+        }
+        else
+        {
+            cursorHotspot = new Vector2(cursorTexture.width / 2, cursorTexture.height / 2);
+            Cursor.SetCursor(cursorTexture, cursorHotspot, CursorMode.Auto);
+            Cursor.visible = true;
+        }
+    }
+
+    public void SetPause(bool paused)
+    {
+        isGamePaused = paused;
+        UpdateCursor();
+    }
+    
     void BuildNavMesh()
     {
         surface = GetComponent<NavMeshSurface>();
